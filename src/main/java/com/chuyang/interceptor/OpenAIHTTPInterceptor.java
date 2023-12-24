@@ -15,6 +15,9 @@ import java.io.IOException;
  * @version 1.0
  */
 public class OpenAIHTTPInterceptor implements Interceptor {
+    /**
+     * okhttp3下的拦截器
+     */
 
     private final Configuration configuration;
 
