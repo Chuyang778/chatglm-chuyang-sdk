@@ -23,11 +23,12 @@ public class DefaultOpenAiSession implements OpenAiSession {
 
     private IOpenAIApi openAIApi;
 
-    public DefaultOpenAiSession(Configuration configuration, EventSource.Factory factory, IOpenAIApi openAIApi) {
+    public DefaultOpenAiSession(Configuration configuration) {
         this.configuration = configuration;
-        this.factory = factory;
-        this.openAIApi = openAIApi;
+        this.factory = configuration.createRequestFactory();
+        this.openAIApi = configuration.getIOpenAIApi();
     }
+
 
     @Override
     public EventSource completions(ChatCompletionRequest chatCompletionRequest, EventSourceListener eventSourceListener) throws JsonProcessingException {
