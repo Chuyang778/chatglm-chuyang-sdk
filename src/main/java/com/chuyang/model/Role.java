@@ -13,7 +13,12 @@ public enum Role {
 
     user("user"),
 
-    assistant("assistant");
+    assistant("assistant"),
+
+    /**
+     * 系统
+     */
+    system("system");
     private final String role;
 }
 
