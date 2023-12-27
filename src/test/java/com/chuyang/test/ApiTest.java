@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -45,7 +46,7 @@ public class ApiTest {
     public void test_completions() throws JsonProcessingException, InterruptedException {
         // 入参；模型、请求信息
         ChatCompletionRequest request = new ChatCompletionRequest();
-        request.setModel(Model.CHATGLM_LITE); // chatGLM_6b_SSE、chatglm_lite、chatglm_lite_32k、chatglm_std、chatglm_pro
+        request.setModel(Model.CHATGLM_TURBO); // chatGLM_6b_SSE、chatglm_lite、chatglm_lite_32k、chatglm_std、chatglm_pro
         request.setIncremental(false);
         request.setPrompt(new ArrayList<ChatCompletionRequest.Prompt>() {
             private static final long serialVersionUID = -7988151926241837899L;
@@ -53,19 +54,27 @@ public class ApiTest {
             {
                 add(ChatCompletionRequest.Prompt.builder()
                         .role(Role.user.getRole())
-                        .content("你是一个专业的互联网文章作者，擅长互联网技术介绍、互联网商业、技术应用等方面的写作。\n" +
-                                "接下来你要根据用户给你的主题，拓展生成用户想要的文字内容，内容可能是一篇文章、一个开头、一段介绍文字、文章总结、文章结尾等等。\n" +
-                                "要求语言通俗易懂、幽默有趣，并且要以第一人称的口吻。")
-                        .build());
-
-                add(ChatCompletionRequest.Prompt.builder()
-                        .role(Role.system.getRole())
-                        .content("请模仿一个男子对梦中女子的喜爱")
+                        .content("1+2")
                         .build());
 
                 add(ChatCompletionRequest.Prompt.builder()
                         .role(Role.user.getRole())
                         .content("Okay")
+                        .build());
+
+                add(ChatCompletionRequest.Prompt.builder()
+                        .role(Role.system.getRole())
+                        .content("1+1=2")
+                        .build());
+
+                add(ChatCompletionRequest.Prompt.builder()
+                        .role(Role.user.getRole())
+                        .content("Okay")
+                        .build());
+
+                add(ChatCompletionRequest.Prompt.builder()
+                        .role(Role.user.getRole())
+                        .content("1+2")
                         .build());
             }
         });
@@ -108,6 +117,27 @@ public class ApiTest {
         CompletableFuture<String> future = openAiSession.completions(request);
         String response = future.get();
         System.out.println(response);
+    }
+
+    @Test
+    public void test_completions_sync() throws IOException, InterruptedException {
+        // 入参；模型、请求信息
+        ChatCompletionRequest request = new ChatCompletionRequest();
+        request.setModel(Model.CHATGLM_TURBO); // chatGLM_6b_SSE、chatglm_lite、chatglm_lite_32k、chatglm_std、chatglm_pro
+        request.setPrompt(new ArrayList<ChatCompletionRequest.Prompt>() {
+            private static final long serialVersionUID = -7988151926241837899L;
+
+            {
+                add(ChatCompletionRequest.Prompt.builder()
+                        .role(Role.user.getRole())
+                        .content("写个java冒泡排序")
+                        .build());
+            }
+        });
+
+        ChatCompletionSyncResponse response = openAiSession.completionsSync(request);
+
+        log.info("测试结果：{}", response);
     }
 
     @Test

@@ -4,20 +4,19 @@ import com.alibaba.fastjson.JSON;
 import com.chuyang.api.IOpenAIApi;
 import com.chuyang.model.ChatCompletionRequest;
 import com.chuyang.model.ChatCompletionResponse;
+import com.chuyang.model.ChatCompletionSyncResponse;
 import com.chuyang.model.EventType;
 import com.chuyang.session.Configuration;
 import com.chuyang.session.OpenAiSession;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.reactivex.Completable;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -75,5 +74,21 @@ public class DefaultOpenAiSession implements OpenAiSession {
             }
         });
         return future;
+    }
+
+    @Override
+    public ChatCompletionSyncResponse completionsSync(ChatCompletionRequest chatCompletionRequest) throws InterruptedException, IOException {
+        // 构建请求信息
+        Request request = new Request.Builder()
+                .url(configuration.getApiHost().concat(IOpenAIApi.v3_completions_sync).replace("{model}", chatCompletionRequest.getModel().getType()))
+                .header("Accept",Configuration.APPLICATION_JSON)
+                .post(RequestBody.create(MediaType.parse("application/json"), chatCompletionRequest.toString()))
+                .build();
+        OkHttpClient okHttpClient = configuration.getOkHttpClient();
+        Response response = okHttpClient.newCall(request).execute();
+        if(!response.isSuccessful()){
+            new RuntimeException("Request failed");
+        }
+        return JSON.parseObject(response.body().string(),ChatCompletionSyncResponse.class);
     }
 }
