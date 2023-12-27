@@ -16,6 +16,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -44,6 +46,7 @@ public class ApiTest {
         // 入参；模型、请求信息
         ChatCompletionRequest request = new ChatCompletionRequest();
         request.setModel(Model.CHATGLM_LITE); // chatGLM_6b_SSE、chatglm_lite、chatglm_lite_32k、chatglm_std、chatglm_pro
+        request.setIncremental(false);
         request.setPrompt(new ArrayList<ChatCompletionRequest.Prompt>() {
             private static final long serialVersionUID = -7988151926241837899L;
 
@@ -57,7 +60,7 @@ public class ApiTest {
 
                 add(ChatCompletionRequest.Prompt.builder()
                         .role(Role.system.getRole())
-                        .content("请模仿鲁迅先生的口述说一段话")
+                        .content("请模仿一个男子对梦中女子的喜爱")
                         .build());
 
                 add(ChatCompletionRequest.Prompt.builder()
@@ -88,6 +91,23 @@ public class ApiTest {
 
         // 等待
         new CountDownLatch(1).await();
+    }
+
+    @Test
+    public void test_completions_future() throws Exception{
+        ChatCompletionRequest request = new ChatCompletionRequest();
+        request.setModel(Model.CHATGLM_LITE);
+        request.setPrompt(new ArrayList<ChatCompletionRequest.Prompt>(){
+            {
+                add(ChatCompletionRequest.Prompt.builder()
+                        .role(Role.user.getRole())
+                        .content("用java实现一个迪杰斯特拉算法")
+                        .build());
+            }
+        });
+        CompletableFuture<String> future = openAiSession.completions(request);
+        String response = future.get();
+        System.out.println(response);
     }
 
     @Test
